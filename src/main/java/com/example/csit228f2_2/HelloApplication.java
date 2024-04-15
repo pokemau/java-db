@@ -13,8 +13,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
@@ -23,24 +21,18 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 public class HelloApplication extends Application {
-    public static List<User> users;
+
+    public static Scene mainScene;
+    public static Stage mainStage;
+
     public static void main(String[] args) {
         launch();
     }
 
     @Override
     public void start(Stage stage) throws Exception {
-        users = new ArrayList<>();
-        // LOAD USERS
-        users.add(new User("tsgtest", "123456"));
-        users.add(new User("jayvince", "secret"));
-        users.add(new User("russselll", "palma"));
 
         AnchorPane pnMain = new AnchorPane();
         GridPane grid = new GridPane();
@@ -100,6 +92,7 @@ public class HelloApplication extends Application {
             }
         });
 
+
         Button btnSignIn = new Button("Sign In");
         btnSignIn.setFont(Font.font(45));
         HBox hbSignIn = new HBox();
@@ -110,13 +103,41 @@ public class HelloApplication extends Application {
         actionTarget.setFont(Font.font(30));
         grid.add(actionTarget, 1, 6);
 
+
+        Button btnRegister = new Button("Register");
+        btnRegister.setFont(Font.font(45));
+        HBox hbRegister = new HBox();
+        hbRegister.getChildren().add(btnRegister);
+        hbRegister.setAlignment(Pos.CENTER);
+        grid.add(hbRegister, 1, 4, 5, 1);
+
+        btnRegister.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                String username = tfUsername.getText();
+                String password = pfPassword.getText();
+
+                if (username.isEmpty() || password.isEmpty()) { return; }
+
+                if (SQLConnection.checkIfUsernameIsUnique(username)) {
+                    SQLConnection.createUser(username, password);
+
+                    actionTarget.setText("CREATED USER SUCCESSFULLY");
+                    actionTarget.setOpacity(1);
+                } else {
+                    actionTarget.setText("USERNAME IS NOT UNIQUE");
+                    actionTarget.setOpacity(1);
+                }
+            }
+        });
+
         btnSignIn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
                 String username = tfUsername.getText();
                 String password = pfPassword.getText();
 
-                if (username.length() == 0 || password.length() == 0) { return; }
+                if (username.isEmpty() || password.isEmpty()) { return; }
 
                 if (SQLConnection.getUser(username, password)) {
                     actionTarget.setText("LOGGING IN");
@@ -125,13 +146,20 @@ public class HelloApplication extends Application {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("hello-view.fxml"));
                     try {
                         Scene scene = new Scene(loader.load());
+
+                        actionTarget.setText("");
+                        actionTarget.setOpacity(0);
+                        tfUsername.setText("");
+                        tfPassword.setText("");
+
+
                         stage.setScene(scene);
                         stage.show();
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                 } else {
-                    actionTarget.setText("FAILED TO CREATE USER");
+                    actionTarget.setText("USER DOES NOT EXIST");
                     actionTarget.setOpacity(1);
                 }
 
@@ -150,6 +178,10 @@ public class HelloApplication extends Application {
 
         Scene scene = new Scene(pnMain, 700, 560);
         stage.setScene(scene);
+
+        mainStage = stage;
+        mainScene = scene;
+
         stage.show();
     }
 }
