@@ -26,7 +26,7 @@ public class HelloApplication extends Application {
         Scene scene = new Scene(root, 700, 400);
 
         stage.setScene(scene);
-        stage.setTitle("My App");
+        stage.setTitle("Natters");
         stage.setResizable(false);
         stage.show();
     }
