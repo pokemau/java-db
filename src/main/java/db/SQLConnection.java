@@ -1,6 +1,9 @@
 package db;
 
+import com.example.csit228f2_2.Note;
+
 import java.sql.*;
+import java.util.ArrayList;
 
 public class SQLConnection {
     public static final String URL = "jdbc:mysql://localhost:3306/taneca_java";
@@ -9,6 +12,56 @@ public class SQLConnection {
 
     public static int CURRENT_USER_ID = -1;
 
+    public static void InitTables() {
+        try (Connection c = getConnection();
+             Statement statement = c.createStatement()) {
+
+            String createUserTable =
+                    "CREATE TABLE IF NOT EXISTS tbluser (" +
+                    "userID INT AUTO_INCREMENT PRIMARY KEY, " +
+                    "username VARCHAR(50) NOT NULL," +
+                    "password VARCHAR(100) NOT NULL)";
+
+            String createNotesTable =
+                    "CREATE TABLE IF NOT EXISTS tblnotes (" +
+                    "noteID INT AUTO_INCREMENT PRIMARY KEY, " +
+                    "content VARCHAR(500) NOT NULL," +
+                    "userID INT, " +
+                    "FOREIGN KEY (userID) REFERENCES tbluser(userID))";
+
+            statement.execute(createUserTable);
+            statement.execute(createNotesTable);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static ArrayList<Note> getNotesFromDB() {
+        ArrayList<Note> notes = new ArrayList<>();
+
+        String query = "SELECT * FROM tblnotes WHERE userID=?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement statement = conn.prepareStatement(query)) {
+
+            statement.setInt(1, CURRENT_USER_ID);
+
+            ResultSet res = statement.executeQuery();
+
+            while (res.next()) {
+                Note n = new Note(res.getInt("noteID"),
+                        res.getInt("userID"),
+                        res.getString("content"));
+
+                notes.add(n);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return notes;
+    }
 
     public static Connection getConnection() {
         Connection c = null;
