@@ -11,6 +11,8 @@ public class SQLConnection {
     public static final String PASSWORD = "123456";
 
     public static int CURRENT_USER_ID = -1;
+    public static Note currentNote = new Note(-1);
+
 
     public static void InitTables() {
         try (Connection c = getConnection();
@@ -25,13 +27,49 @@ public class SQLConnection {
             String createNotesTable =
                     "CREATE TABLE IF NOT EXISTS tblnotes (" +
                     "noteID INT AUTO_INCREMENT PRIMARY KEY, " +
-                    "content VARCHAR(500) NOT NULL," +
-                    "userID INT, " +
+                    "title VARCHAR(100) NOT NULL," +
+                    "content VARCHAR(700) NOT NULL," +
+                    "userID INT," +
                     "FOREIGN KEY (userID) REFERENCES tbluser(userID))";
 
             statement.execute(createUserTable);
             statement.execute(createNotesTable);
         } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static int createNote(String title, String content) {
+        String query = "INSERT INTO tblnotes(userID, title, content) VALUES(?, ?, ?)";
+
+        try (Connection conn = getConnection();
+            PreparedStatement s = conn.prepareStatement(query)) {
+
+            s.setInt(1, CURRENT_USER_ID);
+            s.setString(2, title);
+            s.setString(3, content);
+
+            return s.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static void updateNote(String title, String content,int noteID) {
+        String query = "UPDATE tblnotes SET title = ?, content = ? WHERE noteID= ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement s = conn.prepareStatement(query)) {
+
+            s.setString(1, title);
+            s.setString(2, content);
+            s.setInt(3, noteID);
+
+            s.execute();
+
+        } catch(SQLException e) {
             e.printStackTrace();
         }
     }
@@ -51,6 +89,7 @@ public class SQLConnection {
             while (res.next()) {
                 Note n = new Note(res.getInt("noteID"),
                         res.getInt("userID"),
+                        res.getString("title"),
                         res.getString("content"));
 
                 notes.add(n);

@@ -14,7 +14,7 @@
          <children>
             <HBox alignment="CENTER" prefHeight="0.0" prefWidth="700.0">
                <children>
-                  <Button mnemonicParsing="false" prefWidth="70.0" text="New Note" />
+                  <Button mnemonicParsing="false" onAction="#onCreateNoteClick" prefWidth="70.0" text="New Note" />
                   <Separator prefHeight="0.0" prefWidth="537.0" />
                   <Button mnemonicParsing="false" onAction="#logout" prefWidth="70.0" text="Logout" />
                </children>
