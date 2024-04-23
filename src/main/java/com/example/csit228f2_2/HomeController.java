@@ -15,6 +15,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import javax.swing.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -77,8 +79,20 @@ public class HomeController {
     }
 
     @FXML
-    private void onDeleteNoteClick(int noteID) {
-        System.out.println("DELETE NOTE ID: " + noteID);
+    private void onDeleteNoteClick(ActionEvent event, int noteID) {
+        SQLConnection.deleteNote(noteID);
+
+        Parent root = null;
+        try {
+            root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("home.fxml")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
     }
 
     @FXML
@@ -115,7 +129,7 @@ public class HomeController {
             deleteBtn.setPrefHeight(25);
             deleteBtn.setStyle("-fx-cursor: hand;");
             deleteBtn.setUserData(n.ID);
-            deleteBtn.setOnAction(event -> onDeleteNoteClick((int) deleteBtn.getUserData()));
+            deleteBtn.setOnAction(event -> onDeleteNoteClick(event, (int) deleteBtn.getUserData()));
 
             noteCont.getChildren().add(textCont);
             buttonsCont.getChildren().add(editBtn);

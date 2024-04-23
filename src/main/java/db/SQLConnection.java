@@ -57,6 +57,20 @@ public class SQLConnection {
         return -1;
     }
 
+    public static void deleteNote(int noteID) {
+        String query = "DELETE FROM tblnotes WHERE noteID=?";
+
+        try (Connection c = getConnection();
+        PreparedStatement s = c.prepareStatement(query)) {
+
+            s.setInt(1, noteID);
+
+            s.execute();
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void updateNote(String title, String content,int noteID) {
         String query = "UPDATE tblnotes SET title = ?, content = ? WHERE noteID= ?";
 
