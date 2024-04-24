@@ -38,33 +38,26 @@ public class CreateNoteController {
         if (SQLConnection.currentNote.ID == -1) {
             int res = SQLConnection.createNote(titleField.getText(), contentField.getText());
             if (res != -1) {
-
-                Parent root = null;
-                try {
-                    root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("home.fxml")));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-                Scene scene = new Scene(root);
-                stage.setScene(scene);
-                stage.show();
+                SQLConnection.currentNote.setEmpty();
+                loadHome(event);
             }
         } else {
             SQLConnection.updateNote(title, content, SQLConnection.currentNote.ID);
+            SQLConnection.currentNote.setEmpty();
+            loadHome(event);
+        }
+    }
 
-            Parent root = null;
-            try {
-                root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("home.fxml")));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+    private void loadHome(ActionEvent event) {
+        Parent root;
+        try {
+            root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("home.fxml")));
             Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

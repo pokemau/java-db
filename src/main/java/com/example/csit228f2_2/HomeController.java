@@ -41,41 +41,18 @@ public class HomeController {
 
     @FXML
     private void onCreateNoteClick(ActionEvent event) {
-        Parent root = null;
-        try {
-            root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("create-note.fxml")));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
+        loadCreateNote(event);
     }
+
 
     @FXML
     private void onEditNoteClick(ActionEvent event, int noteID) {
-        Note curr = null;
         for (Note n : notes) {
             if (n.ID == noteID) {
                 SQLConnection.currentNote = n;
-                Parent root = null;
-                try {
-                    root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("create-note.fxml")));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-                Scene scene = new Scene(root);
-                stage.setScene(scene);
-                stage.show();
+                loadCreateNote(event);
             }
         }
-
-
-        System.out.println("EDIT NOTE ID: " + noteID);
     }
 
     @FXML
@@ -97,7 +74,20 @@ public class HomeController {
 
     @FXML
     void logout(ActionEvent event) {
-        System.out.println(event.toString());
+        Parent root;
+        try {
+            root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("login.fxml")));
+
+            SQLConnection.CURRENT_USER_ID = -1;
+            SQLConnection.currentNote.setEmpty();
+
+            Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void listNotes() {
@@ -140,5 +130,19 @@ public class HomeController {
 
             notesContainer.getChildren().add(noteCont);
         }
+    }
+
+    private void loadCreateNote(ActionEvent event) {
+        Parent root;
+        try {
+            root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("create-note.fxml")));
+            Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
