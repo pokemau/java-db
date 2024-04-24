@@ -11,18 +11,31 @@ public class SQLConnection {
     public static final String PASSWORD = "123456";
 
     public static int CURRENT_USER_ID = -1;
-    public static Note currentNote = new Note(-1);
+    public static Note currentNote = new Note();
 
+    public static Connection getConnection() {
+        Connection c;
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            c = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return c;
+    }
 
     public static void InitTables() {
         try (Connection c = getConnection();
              Statement statement = c.createStatement()) {
+
+            c.setAutoCommit(false);
 
             String createUserTable =
                     "CREATE TABLE IF NOT EXISTS tbluser (" +
                     "userID INT AUTO_INCREMENT PRIMARY KEY, " +
                     "username VARCHAR(50) NOT NULL," +
                     "password VARCHAR(100) NOT NULL)";
+            statement.addBatch(createUserTable);
 
             String createNotesTable =
                     "CREATE TABLE IF NOT EXISTS tblnotes (" +
@@ -31,9 +44,11 @@ public class SQLConnection {
                     "content VARCHAR(700) NOT NULL," +
                     "userID INT," +
                     "FOREIGN KEY (userID) REFERENCES tbluser(userID))";
+            statement.addBatch(createNotesTable);
 
-            statement.execute(createUserTable);
-            statement.execute(createNotesTable);
+            statement.executeBatch();
+            c.commit();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -116,19 +131,6 @@ public class SQLConnection {
         return notes;
     }
 
-    public static Connection getConnection() {
-        Connection c = null;
-
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            c = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-            System.out.println("CONNECTED TO THE DATABASE");
-        } catch (ClassNotFoundException | SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return c;
-    }
 
     public static boolean checkIfUsernameIsUnique(String username) {
         String query = "SELECT * FROM tbluser WHERE username=?";
