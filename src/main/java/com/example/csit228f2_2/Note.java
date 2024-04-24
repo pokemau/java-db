@@ -6,8 +6,9 @@ public class Note {
     String content;
     String title;
 
-    public Note(int ID) {
-        this.ID = ID;
+    public Note() {
+        this.ID = -1;
+        this.userID = -1;
     }
 
     public Note(int ID, int userID, String title, String content) {
@@ -15,5 +16,12 @@ public class Note {
         this.userID = userID;
         this.title = title;
         this.content = content;
+    }
+
+    public void setEmpty() {
+        ID = -1;
+        userID = -1;
+        content = "";
+        title = "";
     }
 }
